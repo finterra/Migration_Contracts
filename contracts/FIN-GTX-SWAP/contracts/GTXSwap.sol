@@ -112,6 +112,6 @@ contract GTXSwap is Ownable {
     * @return uint256 - the amount of recorded GTX after FIN point swapping
     */
     function recordGet(address _recordAddress) view public returns (uint256) {
-        claimableGTX[_recordAddress];
+        return claimableGTX[_recordAddress];
     }
 }
