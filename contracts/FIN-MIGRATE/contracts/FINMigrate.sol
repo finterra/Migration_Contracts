@@ -30,10 +30,10 @@ import "../../MATH/SafeMath.sol";
 /**
  * @title FINMigrate
  * @author Terry Wilkinson <terry.wilkinson@finterra.org>
- * @dev The FINMigrate contract is used for current FIN point holders 
+ * @dev The FINMigrate contract is used for current FIN point holders
  * to move thier held FIN points to ERC-20 FIN tokens which will be claimable
  * after the audit period. This contract in particular is for onboarding and
- * storing the resulting FIN ERc20 amount records. 
+ * storing the resulting FIN ERc20 amount records.
  * These records will be used as reference for claiming ERC20 FINs on the Ethereum network.
  */
 
@@ -43,9 +43,9 @@ contract FINMigrate is Ownable {
     // migrationRate is the multiplier to calculate the number of FIN ERC20 claimable per FIN point migrated
     // e.g., 100 = 1:1 migration ratio
     // this migration rate can be seen as a kind of airdrop for exsisting FIN point holders at the time of migration
-    uint256 migrationRate; 
+    uint256 migrationRate;
 
-    // an address map used to store the per account claimable FIN ERC20 record 
+    // an address map used to store the per account claimable FIN ERC20 record
     // as a result of swapped FIN points
     mapping (address => uint256) public claimableFIN;
 
@@ -69,7 +69,7 @@ contract FINMigrate is Ownable {
 
     /**
     * @dev Used to calculate and store the amount of claimable FIN ERC20 from existing FIN point balances
-    * @param _recordAddress - the registered address assigned to FIN ERC20 claiming 
+    * @param _recordAddress - the registered address assigned to FIN ERC20 claiming
     * @param _finPointAmount - the original amount of FIN points to be migrated, this param should always be entered as base units
     * i.e., 1 FIN = 10**18 base units
     * @param _applyMigrationRate - flag to apply migration rate or not, any Finterra Technologies company FIN point allocations
@@ -77,7 +77,7 @@ contract FINMigrate is Ownable {
     */
     function recordUpdate(address _recordAddress, uint256 _finPointAmount, bool _applyMigrationRate) public onlyOwner {
         require(_finPointAmount >= 100000); // minimum allowed FIN 0.000000000001 (in base units) to avoid large rounding errors
-        
+
         uint afterMigrationFIN;
 
         if(_applyMigrationRate == true) {
@@ -85,9 +85,9 @@ contract FINMigrate is Ownable {
         } else {
             afterMigrationFIN = _finPointAmount;
         }
-        
+
         claimableFIN[_recordAddress] = claimableFIN[_recordAddress].add(afterMigrationFIN);
-    
+
         emit FINRecordUpdate(_recordAddress, _finPointAmount, claimableFIN[_recordAddress]);
     }
 
@@ -108,10 +108,10 @@ contract FINMigrate is Ownable {
 
     /**
     * @dev Used to retrieve the FIN ERC20 migration records for an address, for FIN ERC20 claiming
-    * @param _recordAddress - the registered address where FIN ERC20 tokens can be claimed 
+    * @param _recordAddress - the registered address where FIN ERC20 tokens can be claimed
     * @return uint256 - the amount of recorded FIN ERC20 after FIN point migration
     */
     function recordGet(address _recordAddress) view public returns (uint256) {
-        claimableFIN[_recordAddress];
+        return claimableFIN[_recordAddress];
     }
 }
