@@ -24,9 +24,8 @@ pragma solidity ^0.4.24;
     SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 **/
 
-import "./BasicToken.sol";
-import "./DetailedERC20.sol";
-
+import "./ERC20Interface.sol";
+import "../../MATH/SafeMath.sol";
 
 /**
  * @title Standard ERC20 token
@@ -35,9 +34,54 @@ import "./DetailedERC20.sol";
  * https://github.com/ethereum/EIPs/issues/20
  * Based on code by FirstBlood: https://github.com/Firstbloodio/token/blob/master/smart_contract/FirstBloodToken.sol
  */
-contract StandardToken is DetailedERC20, BasicToken {
+contract StandardToken is ERC20Interface {
 
+    using SafeMath for uint256;
+
+    mapping(address => uint256) balances;
     mapping (address => mapping (address => uint256)) internal allowed;
+
+    string public name;
+    string public symbol;
+    uint8 public decimals;
+    uint256 totalSupply_;
+
+    constructor(string _name, string _symbol, uint8 _decimals) public {
+        name = _name;
+        symbol = _symbol;
+        decimals = _decimals;
+    }
+
+    /**
+    * @dev Total number of tokens in existence
+    */
+    function totalSupply() public view returns (uint256) {
+        return totalSupply_;
+    }
+
+    /**
+    * @dev Transfer token for a specified address
+    * @param _to The address to transfer to.
+    * @param _value The amount to be transferred.
+    */
+    function transfer(address _to, uint256 _value) public returns (bool) {
+        require(_to != address(0));
+        require(_value <= balances[msg.sender]);
+
+        balances[msg.sender] = balances[msg.sender].sub(_value);
+        balances[_to] = balances[_to].add(_value);
+        emit Transfer(msg.sender, _to, _value);
+        return true;
+    }
+
+    /**
+    * @dev Gets the balance of the specified address.
+    * @param _owner The address to query the the balance of.
+    * @return An uint256 representing the amount owned by the passed address.
+    */
+    function balanceOf(address _owner) public view returns (uint256) {
+        return balances[_owner];
+    }
 
     /**
     * @dev Transfer tokens from one address to another

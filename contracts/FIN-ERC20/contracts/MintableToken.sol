@@ -24,7 +24,7 @@ pragma solidity ^0.4.24;
     SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 **/
 /**
-*  We have adapted the minting functionality to only mint tokens based on the Finterra deployed claim function 
+*  We have adapted the minting functionality to only mint tokens based on the Finterra deployed claim function
 *  Thus we have renamed and slightly changed the Ownable.sol depedancy to Claimable.sol which requires a FINClaim.sol contract address during deployment.
 *  This means that only FIN ERC20 tokens correlating to FIN point migration records can be minted (migration record contract address defined in FINClaim.sol)
 */
@@ -51,17 +51,18 @@ contract MintableToken is StandardToken, Claimable {
     /**
     * @dev Constructor to pass the finMigrationContract address to the Claimable constructor
     */
-    constructor(FINMigrate _finMigrationContract) Claimable(_finMigrationContract) public {
-
+    constructor(FINMigrate _finMigrationContract,string _name, string _symbol, uint8 _decimals)
+    Claimable(_finMigrationContract)
+    StandardToken(_name,_symbol,_decimals)public {
+        
     }
 
     /**
     * @dev Allows addresses with FIN migration records to claim thier ERC20 FIN tokens. This is the only way minting can occur.
     */
     function claim() public canClaim {
-        claimed[msg.sender] = true;
         mint(msg.sender,finMigrationContract.recordGet(msg.sender));
-
+        claimed[msg.sender] = true;
     }
 
     /**
