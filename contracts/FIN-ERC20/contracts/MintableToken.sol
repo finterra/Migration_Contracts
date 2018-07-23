@@ -27,6 +27,7 @@ pragma solidity ^0.4.24;
 *  We have adapted the minting functionality to only mint tokens based on the Finterra deployed claim function
 *  Thus we have renamed and slightly changed the Ownable.sol depedancy to Claimable.sol which requires a FINClaim.sol contract address during deployment.
 *  This means that only FIN ERC20 tokens correlating to FIN point migration records can be minted (migration record contract address defined in FINClaim.sol)
+*  We have also inherited StandardToken to implement all Standard Token functionalities
 */
 import "./StandardToken.sol";
 import "./Claimable.sol";

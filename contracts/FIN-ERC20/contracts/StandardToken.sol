@@ -24,6 +24,10 @@ pragma solidity ^0.4.24;
     SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 **/
 
+/**
+*  We have inherited ERC20Interface instead of Token contract and included additional functions say increaseApproval() and decreaseApproval() to the StandardToken
+*/
+
 import "./ERC20Interface.sol";
 import "../../MATH/SafeMath.sol";
 

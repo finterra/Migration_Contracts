@@ -131,7 +131,7 @@ contract('Mintable Token', function (accounts) {
             finContract = await finMigrate.new(100)
             await mintableToken.transferMigrationSource(finContract.address, { from: accounts[0] })
         })
-
+        
         it('Should get rejected as there are no records in the new FIn migration contract', async function () {
             await mintableToken.claim({ from: accounts[1] }).should.be.rejected;
         })
