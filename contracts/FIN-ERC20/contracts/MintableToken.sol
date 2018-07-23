@@ -54,15 +54,15 @@ contract MintableToken is StandardToken, Claimable {
     constructor(FINMigrate _finMigrationContract,string _name, string _symbol, uint8 _decimals)
     Claimable(_finMigrationContract)
     StandardToken(_name,_symbol,_decimals)public {
-        
+
     }
 
     /**
     * @dev Allows addresses with FIN migration records to claim thier ERC20 FIN tokens. This is the only way minting can occur.
     */
     function claim() public canClaim {
-        mint(msg.sender,finMigrationContract.recordGet(msg.sender));
         claimed[msg.sender] = true;
+        mint(msg.sender,finMigrationContract.recordGet(msg.sender));
     }
 
     /**
