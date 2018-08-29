@@ -1,6 +1,6 @@
 ### Migration Contracts
 
-Compiled contracts for FIN-ERC20, FIN-GTX-SWAP and FIN-MIGRATE.
+Compiled contracts for FIN-ERC20, FIN-GTX-SWAP and FIN-MIGRATE required for ICO. Detailed Readme about each contracts are updated inside the contracts folder.
 
 ### Prerequisite
     Nodejs v8+
@@ -14,14 +14,12 @@ npm install -g truffle
 ```
 npm i
 ```
-3. Compile and migrate test smart contracts
+3. Compile migrate and test smart contracts
 ```
 truffle compile
-truffle migrate --network {ropsten/mainnet}
+truffle migrate
 truffle test
 ```
-
-The GTX_Swap_Rate and FinMigrate Rate should be updated before excecuting the contract. Smart contract does not support float values so we can specify 375 instead of 3.75. Internally smart contract will do the conversion
 
 4. Configure your address in truffle.js to deploy contracts from a specific address
     `from: 'address'`
