@@ -15,7 +15,9 @@ contract('FIN Migrate', function (accounts) {
 
     var fin = 5 * 10e18;
     var finWithMigRate = 8 * 10e18;
+    var finWithMigRate1 = 9 * 10e18;
     var invalidfin = 100;
+    var invalidfin1 = 9 * 10e17;
 
     //EVENTS
     var txUpdate;
@@ -23,7 +25,7 @@ contract('FIN Migrate', function (accounts) {
 
     describe('Record update before setting migration rate', async function(){
 
-        it('Should update with migration rate true', async function () {
+        it('Should reject before setting migration rate', async function () {
             await finInstance.recordUpdate(accounts[1], finWithMigRate, true, { from: accounts[0] }).should.be.rejected;
         })
     })
@@ -41,17 +43,31 @@ contract('FIN Migrate', function (accounts) {
         it('Should update with migration rate true', async function () {
             txUpdate = await finInstance.recordUpdate(accounts[1], finWithMigRate, true, { from: accounts[0] })
             var balance = await finInstance.recordGet.call(accounts[1])
-            assert.equal(balance.toNumber(), finWithMigRate, "balance should be (7 *10e18)/100")
+            assert.equal(balance.toNumber(), finWithMigRate, "balance should be (8 *10e18)")
         })
 
         it('Should update without migration rate false', async function () {
             await finInstance.recordUpdate(accounts[2], fin, false, { from: accounts[0] })
             var balance = await finInstance.recordGet.call(accounts[2])
-            assert.equal(balance.toNumber(), fin, "balance should be 7 *10e18")
+            assert.equal(balance.toNumber(), fin, "balance should be 8 *10e18")
+        })
+
+        it('Should update for the same address different finPoint', async function () {
+            txUpdate = await finInstance.recordUpdate(accounts[1], finWithMigRate1, true, { from: accounts[0] })
+            var balance = await finInstance.recordGet.call(accounts[1])
+            assert.equal(balance.toNumber(), finWithMigRate+finWithMigRate1, "balance should be (17 *10e18)")
+        })
+
+        it('Should be rejected for null address', async function () {
+            finInstance.recordUpdate("accounts[3]", finMigrate, true, { from: accounts[0] }).should.be.rejected;
         })
 
         it('Should be rejected for finPointAmount >= 100000', async function () {
             finInstance.recordUpdate(accounts[3], invalidfin, true, { from: accounts[0] }).should.be.rejected;
+        })
+
+        it('Should be updated for finPointAmount less than 18 decimal points', async function () {
+            await finInstance.recordUpdate(accounts[3], invalidfin1, true, { from: accounts[0] })
         })
 
         it('it should be called only by the contract owner', async function () {
@@ -64,7 +80,7 @@ contract('FIN Migrate', function (accounts) {
         it('Should move record for an existing "from" address and non-existing "to" address', async function () {
             txMove = await finInstance.recordMove(accounts[2], accounts[4], { from: accounts[0] })
             var balance = await finInstance.recordGet.call(accounts[4])
-            assert.equal(balance.toNumber(), fin, "balance should be 7 *10e18")
+            assert.equal(balance.toNumber(), fin, "balance should be 8 *10e18")
             var balance = await finInstance.recordGet.call(accounts[2])
             assert.equal(balance.toNumber(), 0, "balance should be 0")
         })
@@ -90,7 +106,7 @@ contract('FIN Migrate', function (accounts) {
 
         it('Should emit FINRecordUpdate event for account[1]',async function(){
             truffleAssert.eventEmitted(txUpdate, 'FINRecordUpdate', (ev) => {
-                return ev._recordAddress === accounts[1] && ev._finPointAmount.eq(finWithMigRate) && ev._finAmount.eq(finWithMigRate);
+                return ev._recordAddress === accounts[1] && ev._finPointAmount.eq(finWithMigRate1);
             });
         })
 
