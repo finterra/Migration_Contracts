@@ -13,7 +13,6 @@ module.exports = function (deployer) {
     deployer.link(SafeMath, MintableToken);
     //Deploy GTX Swap Contract
     deployer.deploy(GTXSwap);
-
     //Deploy FinMigrate Contract
     deployer.deploy(FINMigrate).then(function () {
         console.log("FINMigrate.address", FINMigrate.address)
