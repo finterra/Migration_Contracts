@@ -61,6 +61,7 @@ contract("Mintable Token", function(accounts) {
       var v = parseInt(response.v, 16);
       var r = response.r;
       var s = response.s;
+      console.log("response",response)
       await mintableToken.claim(msgHash,v,r,s,{ from: accounts[1] })
       balance = await mintableToken.balanceOf.call(accounts[1])
       assert.equal(balance.toNumber(), record1, "Claimed Balance should be updated")

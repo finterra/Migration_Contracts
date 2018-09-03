@@ -26,7 +26,7 @@ contract('FIN Migrate', function (accounts) {
     describe('Record update before setting migration rate', async function(){
 
         it('Should reject before setting migration rate', async function () {
-            await finInstance.recordUpdate(accounts[1], finWithMigRate, true, { from: accounts[0] }).should.be.rejected;
+            await finInstance.recordCreate(accounts[1], finWithMigRate, true, { from: accounts[0] }).should.be.rejected;
         })
     })
     describe('set migration rate',async function(){
@@ -38,43 +38,50 @@ contract('FIN Migrate', function (accounts) {
             finInstance.setMigrationRate(100,{from:accounts[1]}).should.be.rejected;
         })
     })
-    describe('Fin record update', function () {
+    describe('Fin record Create', function () {
 
         it('Should update with migration rate true', async function () {
-            txUpdate = await finInstance.recordUpdate(accounts[1], finWithMigRate, true, { from: accounts[0] })
+            txUpdate = await finInstance.recordCreate(accounts[1], finWithMigRate, true, { from: accounts[0] })
             var balance = await finInstance.recordGet.call(accounts[1])
             assert.equal(balance.toNumber(), finWithMigRate, "balance should be (8 *10e18)")
         })
 
         it('Should update without migration rate false', async function () {
-            await finInstance.recordUpdate(accounts[2], fin, false, { from: accounts[0] })
+            await finInstance.recordCreate(accounts[2], fin, false, { from: accounts[0] })
             var balance = await finInstance.recordGet.call(accounts[2])
             assert.equal(balance.toNumber(), fin, "balance should be 8 *10e18")
         })
 
         it('Should update for the same address different finPoint', async function () {
-            txUpdate = await finInstance.recordUpdate(accounts[1], finWithMigRate1, true, { from: accounts[0] })
+            txUpdate = await finInstance.recordCreate(accounts[1], finWithMigRate1, true, { from: accounts[0] })
             var balance = await finInstance.recordGet.call(accounts[1])
             assert.equal(balance.toNumber(), finWithMigRate+finWithMigRate1, "balance should be (17 *10e18)")
         })
 
         it('Should be rejected for null address', async function () {
-            finInstance.recordUpdate("accounts[3]", finMigrate, true, { from: accounts[0] }).should.be.rejected;
+            finInstance.recordCreate("accounts[3]", finMigrate, true, { from: accounts[0] }).should.be.rejected;
         })
 
         it('Should be rejected for finPointAmount >= 100000', async function () {
-            finInstance.recordUpdate(accounts[3], invalidfin, true, { from: accounts[0] }).should.be.rejected;
+            finInstance.recordCreate(accounts[3], invalidfin, true, { from: accounts[0] }).should.be.rejected;
         })
 
         it('Should be updated for finPointAmount less than 18 decimal points', async function () {
-            await finInstance.recordUpdate(accounts[3], invalidfin1, true, { from: accounts[0] })
+            await finInstance.recordCreate(accounts[3], invalidfin1, true, { from: accounts[0] })
         })
 
         it('it should be called only by the contract owner', async function () {
-            finInstance.recordUpdate(accounts[1], fin, true, { from: accounts[1] }).should.be.rejected;
+            finInstance.recordCreate(accounts[1], fin, true, { from: accounts[1] }).should.be.rejected;
         })
     })
+    describe('Fin record Update', function () {
 
+        it('Should update the existing record with the new value', async function() {
+            await finInstance.recordUpdate(accounts[1], finWithMigRate,true,{from:accounts[0]})
+            var balance = await finInstance.recordGet.call(accounts[1])
+            assert.equal(balance.toNumber(), finWithMigRate, "balance should be (8 *10e18)")
+        })
+    })
     describe('Fin record move', function () {
 
         it('Should move record for an existing "from" address and non-existing "to" address', async function () {
