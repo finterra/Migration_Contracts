@@ -83,8 +83,8 @@ contract TimeLock {
 
             emit UnLock(msg.sender, accounts[msg.sender].balance, now);
 
-            ERC20Contract.transfer(msg.sender,accounts[msg.sender].balance);
-        }
+            ERC20Contract.transfer(msg.sender, accounts[msg.sender].balance);
+      }
     }
 
     // some helper functions for demo purposes (not required)
@@ -96,4 +96,11 @@ contract TimeLock {
         return accounts[_account].releaseTime;
     }
 
+    /**
+    * @dev Used to retrieve the ERC20 contract address that this deployment is attatched to
+    * @return address - the ERC20 contract address that this deployment is attatched to
+    */
+    function getERC20() public view returns (address) {
+        return ERC20Contract;
+    }
 }

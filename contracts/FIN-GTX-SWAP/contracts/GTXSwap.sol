@@ -95,7 +95,7 @@ contract GTXSwap is Ownable {
     * @param _applySwapRate - flag to apply swap rate or do one for one swap, any Finterra Technologies company FIN point allocations
     * are strictly swapped at one to one and do not recive the swap bonus applied to FIN point user balances
     */
-     function recordCreate(address _recordAddress, uint256 _finPointAmount, bool _applySwapRate) public onlyOwner canSwap {
+    function recordCreate(address _recordAddress, uint256 _finPointAmount, bool _applySwapRate) public onlyOwner canSwap {
         require(_finPointAmount >= 100000); // minimum allowed FIN 0.000000000001 (in base units) to avoid large rounding errors
         uint256 afterSwapGTX;
         if(_applySwapRate == true) {
