@@ -59,11 +59,12 @@ contract TimeLock {
 
         uint256 lockAmount = ERC20Contract.allowance(msg.sender, this); // get this time lock contract's approved amount of tokens
 
+
         require(lockAmount != 0); // check that this time lock contract has been approved to lock an amount of tokens on the msg.sender's behalf
 
         if (accounts[msg.sender].balance > 0) { // if locked balance already exists, add new amount to the old balance and retain the same release time
             accounts[msg.sender].balance = SafeMath.add(accounts[msg.sender].balance, lockAmount);
-       } else { // else populate the blanace and set the release time for the newly locked balance
+      } else { // else populate the blanace and set the release time for the newly locked balance
             accounts[msg.sender].balance = lockAmount;
             accounts[msg.sender].releaseTime = SafeMath.add(now, _lockTimeS);
         }
@@ -82,7 +83,7 @@ contract TimeLock {
 
             emit UnLock(msg.sender, accounts[msg.sender].balance, now);
 
-            address(ERC20Contract).transfer(accounts[msg.sender].balance);
+            ERC20Contract.transfer(msg.sender,accounts[msg.sender].balance);
         }
     }
 

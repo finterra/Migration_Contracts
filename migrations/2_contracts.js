@@ -2,6 +2,7 @@ var MintableToken = artifacts.require('./MintableToken.sol')
 var FINMigrate = artifacts.require("./FINMigrate.sol");
 var GTXSwap = artifacts.require("./GTXSwap.sol");
 var SafeMath = artifacts.require("./SafeMath.sol");
+var TimeLock = artifacts.require("./TimeLock.sol")
 
 
 module.exports = function (deployer) {
@@ -19,6 +20,10 @@ module.exports = function (deployer) {
         //Deploy ERC20 Contract
         deployer.deploy(MintableToken, FINMigrate.address, "Fin Token", "FIN", 18).then(function () {
             console.log("MintableToken.address", MintableToken.address)
+        }).then(function() {
+            deployer.deploy(TimeLock, MintableToken.address).then(function (){
+                console.log("TimeLock contract address", TimeLock.address)
+            })
         })
     })
 };
