@@ -86,7 +86,7 @@ contract FINMigrate is Ownable {
     * @param _applyMigrationRate - flag to apply migration rate or not, any Finterra Technologies company FIN point allocations
     * are strictly migrated at one to one and do not recive the migration (airdrop) bonus applied to FIN point user balances
     */
-    function recordUpdate(address _recordAddress, uint256 _finPointAmount, bool _applyMigrationRate) public onlyOwner canMigrate{
+    function recordCreate(address _recordAddress, uint256 _finPointAmount, bool _applyMigrationRate) public onlyOwner canMigrate{
         require(_finPointAmount >= 100000); // minimum allowed FIN 0.000000000001 (in base units) to avoid large rounding errors
 
         uint afterMigrationFIN;
@@ -98,6 +98,30 @@ contract FINMigrate is Ownable {
         }
 
         claimableFIN[_recordAddress] = claimableFIN[_recordAddress].add(afterMigrationFIN);
+
+        emit FINRecordUpdate(_recordAddress, _finPointAmount, claimableFIN[_recordAddress]);
+    }
+
+    /**
+    * @dev Used to calculate and update the amount of claimable FIN ERC20 from existing FIN point balances
+    * @param _recordAddress - the registered address assigned to FIN ERC20 claiming
+    * @param _finPointAmount - the original amount of FIN points to be migrated, this param should always be entered as base units
+    * i.e., 1 FIN = 10**18 base units
+    * @param _applyMigrationRate - flag to apply migration rate or not, any Finterra Technologies company FIN point allocations
+    * are strictly migrated at one to one and do not recive the migration (airdrop) bonus applied to FIN point user balances
+    */
+    function recordUpdate(address _recordAddress, uint256 _finPointAmount, bool _applyMigrationRate) public onlyOwner canMigrate{
+        require(_finPointAmount >= 100000); // minimum allowed FIN 0.000000000001 (in base units) to avoid large rounding errors
+
+        uint afterMigrationFIN;
+
+        if(_applyMigrationRate == true) {
+            afterMigrationFIN = _finPointAmount.mul(migrationRate).div(100);
+        } else {
+            afterMigrationFIN = _finPointAmount;
+        }
+
+        claimableFIN[_recordAddress] = afterMigrationFIN;
 
         emit FINRecordUpdate(_recordAddress, _finPointAmount, claimableFIN[_recordAddress]);
     }
