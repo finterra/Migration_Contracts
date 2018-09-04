@@ -128,7 +128,7 @@ contract MintableToken is StandardToken, Claimable {
         // check that this FIN ERC20 deployment is the migration contract's attached ERC20 token
         require(_finERC20MigrationContract.getERC20() == address(this));
 
-        finERC20MigrationContract == _finERC20MigrationContract;
+        finERC20MigrationContract = _finERC20MigrationContract;
         emit SetMigrationAddress(_finERC20MigrationContract);
         return true;
     }
@@ -141,7 +141,7 @@ contract MintableToken is StandardToken, Claimable {
         // check that this FIN ERC20 deployment is the timelock contract's attached ERC20 token
         require(_timeLockContract.getERC20() == address(this));
 
-        timeLockContract == _timeLockContract;
+        timeLockContract = _timeLockContract;
         emit SetTimeLockAddress(_timeLockContract);
         return true;
     }
@@ -154,10 +154,10 @@ contract MintableToken is StandardToken, Claimable {
         require(migrationStart == false);
         // check that the FIN migration contract address is set
         require(finERC20MigrationContract != address(0));
-        // check that the TimeLock contract address is set
+        // // check that the TimeLock contract address is set
         require(timeLockContract != address(0));
 
-        migrationStart == true;
+        migrationStart = true;
         emit MigrationStarted();
 
         return true;

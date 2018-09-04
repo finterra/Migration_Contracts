@@ -1,4 +1,4 @@
-var finMigrate = artifacts.require('./FINMigrate')
+var finRecord = artifacts.require('./FINPointRecord')
 const truffleAssert = require('truffle-assertions');
 const assert = require("chai").assert;
 require('chai')
@@ -10,8 +10,9 @@ contract('FIN Migrate', function (accounts) {
     let finInstance;
 
     before(async function () {
-        finInstance = await finMigrate.new()
+        finInstance = await finRecord.new()
     })
+    const claimRate = 100
 
     var fin = 5 * 10e18;
     var finWithMigRate = 8 * 10e18;
@@ -20,6 +21,7 @@ contract('FIN Migrate', function (accounts) {
     var invalidfin1 = 9 * 10e17;
 
     //EVENTS
+    var txCreate;
     var txUpdate;
     var txMove;
 
@@ -32,16 +34,16 @@ contract('FIN Migrate', function (accounts) {
     describe('set migration rate',async function(){
 
         it('Should set the migration rate by owner', async function(){
-            await finInstance.setMigrationRate(100)
+            await finInstance.setClaimRate(claimRate)
         })
         it('Should reject if migration rate is not set by the owner',async function(){
-            finInstance.setMigrationRate(100,{from:accounts[1]}).should.be.rejected;
+            finInstance.setClaimRate(claimRate,{from:accounts[1]}).should.be.rejected;
         })
     })
     describe('Fin record Create', function () {
 
         it('Should update with migration rate true', async function () {
-            txUpdate = await finInstance.recordCreate(accounts[1], finWithMigRate, true, { from: accounts[0] })
+            txCreate = await finInstance.recordCreate(accounts[1], finWithMigRate, true, { from: accounts[0] })
             var balance = await finInstance.recordGet.call(accounts[1])
             assert.equal(balance.toNumber(), finWithMigRate, "balance should be (8 *10e18)")
         })
@@ -53,13 +55,13 @@ contract('FIN Migrate', function (accounts) {
         })
 
         it('Should update for the same address different finPoint', async function () {
-            txUpdate = await finInstance.recordCreate(accounts[1], finWithMigRate1, true, { from: accounts[0] })
+            txCreate = await finInstance.recordCreate(accounts[1], finWithMigRate1, true, { from: accounts[0] })
             var balance = await finInstance.recordGet.call(accounts[1])
             assert.equal(balance.toNumber(), finWithMigRate+finWithMigRate1, "balance should be (17 *10e18)")
         })
 
         it('Should be rejected for null address', async function () {
-            finInstance.recordCreate("accounts[3]", finMigrate, true, { from: accounts[0] }).should.be.rejected;
+            finInstance.recordCreate("accounts[3]", finWithMigRate, true, { from: accounts[0] }).should.be.rejected;
         })
 
         it('Should be rejected for finPointAmount >= 100000', async function () {
@@ -111,15 +113,15 @@ contract('FIN Migrate', function (accounts) {
 
     describe('Testing Events',function(){
 
-        it('Should emit FINRecordUpdate event for account[1]',async function(){
-            truffleAssert.eventEmitted(txUpdate, 'FINRecordUpdate', (ev) => {
-                return ev._recordAddress === accounts[1] && ev._finPointAmount.eq(finWithMigRate1);
+        it('Should emit FINRecordCreate event for account[1]',async function(){
+            truffleAssert.eventEmitted(txCreate, 'FINRecordCreate', (ev) => {
+                return ev._recordAddress === accounts[1] && ev._finPointAmount.eq(finWithMigRate1) && ev._finERC20Amount.eq(finWithMigRate1+finWithMigRate);
             });
         })
 
         it('Should emit FINRecordMove event for account[2]',async function(){
             truffleAssert.eventEmitted(txMove, 'FINRecordMove', (ev) => {
-                return ev._oldAddress === accounts[2] && ev._newAddress === accounts[4] && ev._finAmount.eq(fin);
+                return ev._oldAddress === accounts[2] && ev._newAddress === accounts[4] && ev._finERC20Amount.eq(fin);
             });
         })
     })
