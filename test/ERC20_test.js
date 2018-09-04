@@ -17,7 +17,7 @@ contract("Mintable Token", function(accounts) {
   var finInstance;
   var mintableToken;
   var finERCMigrate;
-  var timeLock;
+  var timeLockIns;
 
   //Fin Record Balance
   record1 = 80 * 10e18;
@@ -40,7 +40,7 @@ contract("Mintable Token", function(accounts) {
         );
         console.log("mintableToken",mintableToken.address)
         finERCMigrate = await FinMigrate.new(mintableToken.address)
-        timeLock = await TimeLock.new(mintableToken.address)
+        timeLockIns = await TimeLock.new(mintableToken.address)
       }
     );
 
@@ -180,7 +180,7 @@ contract("Mintable Token", function(accounts) {
         await mintableToken.setMigrationAddress(finERCMigrate.address)
     })
     it("should timeLockAddress", async function() {
-        await mintableToken.setTimeLockAddress(timeLock.address)
+        await mintableToken.setTimeLockAddress(timeLockIns.address)
     })
   })
 
@@ -285,7 +285,41 @@ contract("Mintable Token", function(accounts) {
           from: accounts[1]
         }).should.be.rejected;
       }
+    })
 
+    it("Should approve timelock contract to transfer tokens", async function() {
+      var balance = await mintableToken.balanceOf.call(accounts[2])
+      if (balance >= record2/2 ) {
+        await mintableToken.approve(timeLockIns.address, record2 /2, {
+          from: accounts[2]
+        });
+      }
+    })
+
+    it(" Should lock tokens in timelock contract", async function() {
+      var allowance = await mintableToken.allowance.call(
+        accounts[2],
+        timeLockIns.address
+      );
+      if (allowance > 0 ) {
+        await timeLockIns.timeLockTokens(0,{from:accounts[2]})
+      }
+      balance = await mintableToken.balanceOf.call(timeLockIns.address);
+      assert.equal(balance.toNumber(),record2 / 2,"Transferred balance should be updated");
+    })
+
+    it("Should return locked token balance ", async function() {
+        var lockedtokens = await timeLockIns.getLockedFunds(accounts[2])
+        assert.equal(lockedtokens.toNumber(),record2/2,"locked funds should be equal to record2/2")
+    })
+    it("Should return getReleaseTime ", async function() {
+      var start = Date.now();
+      var releaseTime = await timeLockIns.getReleaseTime(accounts[2])
+      console.log("releaseTime",releaseTime.toNumber())
+      console.log("start",Math.round(start/1000))
+    })
+    it(" Should release locked tokens after 1 sec", async function() {
+      await timeLockIns.tokenRelease({from:accounts[2]})
     })
   })
 
@@ -300,19 +334,6 @@ contract("Mintable Token", function(accounts) {
     it("Should get rejected as there are no records in the new FIn migration contract", async function() {
       await mintableToken.claim({ from: accounts[1] }).should.be.rejected;
     });
-
-    it(" should reject approve function- after starting migration", async function() {
-      await mintableToken.approve(accounts[3], record2 / 4, {
-        from: accounts[2]
-      }).should.be.rejected;
-    });
-
-    it(" Should transfer from timelock contract", async function() {
-      var balance = await mintableToken.balanceOf.call(accounts[2])
-      
-      var erc20 = await timeLock.getERC20.call()
-      assert.equal(balance.toNumber(),record2/2,"should be equal")
-    })
   });
 
   describe("Update finishMint", async function() {

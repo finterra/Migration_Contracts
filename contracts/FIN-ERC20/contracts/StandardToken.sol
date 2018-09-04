@@ -139,7 +139,7 @@ contract StandardToken is ERC20Interface {
     * @param _spender The address which will spend the funds.
     * @param _value The amount of tokens to be spent.
     */
-    function approve(address _spender, uint256 _value) public migrateStarted returns (bool) {
+    function approve(address _spender, uint256 _value) public returns (bool) {
         allowed[msg.sender][_spender] = _value;
         emit Approval(msg.sender, _spender, _value);
         return true;
@@ -176,7 +176,6 @@ contract StandardToken is ERC20Interface {
         uint256 _addedValue
     )
         public
-        migrateStarted
         returns (bool)
     {
         allowed[msg.sender][_spender] = (
@@ -199,7 +198,6 @@ contract StandardToken is ERC20Interface {
         uint256 _subtractedValue
     )
         public
-        migrateStarted
         returns (bool)
     {
         uint256 oldValue = allowed[msg.sender][_spender];

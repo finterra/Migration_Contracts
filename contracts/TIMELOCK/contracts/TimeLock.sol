@@ -71,20 +71,18 @@ contract TimeLock {
 
         emit Lock(msg.sender, lockAmount, accounts[msg.sender].releaseTime);
 
-        ERC20Contract.transferFrom(msg.sender, address(this), lockAmount);
+        ERC20Contract.transferFrom(msg.sender, this, lockAmount);
 
     }
 
     function tokenRelease() public {
         // check if user has funds due for pay out because lock time is over
-        if (accounts[msg.sender].balance != 0 && accounts[msg.sender].releaseTime < now) {
-            accounts[msg.sender].balance = 0;
-            accounts[msg.sender].releaseTime = 0;
+        require (accounts[msg.sender].balance != 0 && accounts[msg.sender].releaseTime < now);
+        accounts[msg.sender].balance = 0;
+        accounts[msg.sender].releaseTime = 0;
+        emit UnLock(msg.sender, accounts[msg.sender].balance, now);
+        ERC20Contract.transfer(msg.sender, accounts[msg.sender].balance);
 
-            emit UnLock(msg.sender, accounts[msg.sender].balance, now);
-
-            ERC20Contract.transfer(msg.sender, accounts[msg.sender].balance);
-      }
     }
 
     // some helper functions for demo purposes (not required)
