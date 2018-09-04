@@ -64,14 +64,14 @@ contract TimeLock {
 
         if (accounts[msg.sender].balance > 0) { // if locked balance already exists, add new amount to the old balance and retain the same release time
             accounts[msg.sender].balance = SafeMath.add(accounts[msg.sender].balance, lockAmount);
-      } else { // else populate the blanace and set the release time for the newly locked balance
+      } else { // else populate the balance and set the release time for the newly locked balance
             accounts[msg.sender].balance = lockAmount;
             accounts[msg.sender].releaseTime = SafeMath.add(now, _lockTimeS);
         }
 
         emit Lock(msg.sender, lockAmount, accounts[msg.sender].releaseTime);
 
-        ERC20Contract.transferFrom(msg.sender, this, lockAmount);
+        ERC20Contract.transferFrom(msg.sender, address(this), lockAmount);
 
     }
 
