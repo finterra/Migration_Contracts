@@ -269,7 +269,7 @@ contract("Mintable Token", function(accounts) {
   /*****
    * startMigration to migrate all tokens to gallactic network
    */
-  describe('Migration Fin points to gallactic network', function(){
+  describe('Migration of Fin points to gallactic network', function(){
     it('should start migration by the owner', async function(){
       await mintableToken.startMigration({from:accounts[1]}).should.be.rejected;
      })
