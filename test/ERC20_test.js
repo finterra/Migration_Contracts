@@ -302,7 +302,7 @@ contract("Mintable Token", function(accounts) {
         timeLockIns.address
       );
       if (allowance > 0 ) {
-        await timeLockIns.timeLockTokens(0,{from:accounts[2]})
+        await timeLockIns.timeLockTokens(10,{from:accounts[2]}) //locking tokens for 10 seconds
       }
       balance = await mintableToken.balanceOf.call(timeLockIns.address);
       assert.equal(balance.toNumber(),record2 / 2,"Transferred balance should be updated");
@@ -315,11 +315,9 @@ contract("Mintable Token", function(accounts) {
     it("Should return getReleaseTime ", async function() {
       var start = Date.now();
       var releaseTime = await timeLockIns.getReleaseTime(accounts[2])
-      console.log("releaseTime",releaseTime.toNumber())
-      console.log("start",Math.round(start/1000))
     })
-    it(" Should release locked tokens after 1 sec", async function() {
-      await timeLockIns.tokenRelease({from:accounts[2]})
+    it(" Should reject timelock release before 10 seconds", async function() {
+      await timeLockIns.tokenRelease({from:accounts[2]}).should.be.rejected;
     })
   })
 

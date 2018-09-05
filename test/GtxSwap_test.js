@@ -55,7 +55,6 @@ contract('GTX SWAP', function (accounts) {
         it('Should add finpoints for the same record', async function () {
             await gtxInstance.recordCreate(accounts[1], finWithSwap, true, { from: accounts[0] })
             var balance = await gtxInstance.recordGet.call(accounts[1])
-            console.log("balance",balance)
             assert.equal(balance.toNumber(), (finWithSwap*2)*swapRate/100, "balance should be (18 *10e18)")
         })
 
