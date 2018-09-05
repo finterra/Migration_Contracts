@@ -77,7 +77,7 @@ contract TimeLock {
 
     function tokenRelease() public {
         // check if user has funds due for pay out because lock time is over
-        require (accounts[msg.sender].balance != 0 && accounts[msg.sender].releaseTime < now);
+        require (accounts[msg.sender].balance != 0 && accounts[msg.sender].releaseTime <= now);
         accounts[msg.sender].balance = 0;
         accounts[msg.sender].releaseTime = 0;
         emit UnLock(msg.sender, accounts[msg.sender].balance, now);
