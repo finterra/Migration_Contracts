@@ -18,19 +18,19 @@ module.exports = function(deployer) {
   deployer.deploy(GTXSwap);
   //Deploy FinMigrate Contract
   deployer.deploy(FINPointRecord).then(function() {
-    console.log("FINPointRecord.address", FINPointRecord.address);
+    // console.log("FINPointRecord.address", FINPointRecord.address);
     //Deploy ERC20 Contract
     deployer
       .deploy(ERC20, FINPointRecord.address, "Fin Token", "FIN", 18)
       .then(function() {
-        console.log("ERC20 contract address", ERC20.address);
+        // console.log("ERC20 contract address", ERC20.address);
       })
       .then(function() {
         deployer.deploy(FinMigrate, ERC20.address).then(function(){
-            console.log("FinMigrate address", FinMigrate.address);
+            // console.log("FinMigrate address", FinMigrate.address);
         });
         deployer.deploy(TimeLock, ERC20.address).then(function() {
-          console.log("TimeLock contract address", TimeLock.address);
+          // console.log("TimeLock contract address", TimeLock.address);
         });
       });
   });

@@ -1,6 +1,7 @@
 pragma solidity 0.4.24;
 import "../../GTX-ERC20/contracts/GTXToken.sol";
 import "../../FIN-GTX-SWAP/contracts/GTXSwap.sol";
+import "../../MATH/SafeMath.sol";
 
 /**
     The MIT License (MIT)
@@ -31,6 +32,7 @@ import "../../FIN-GTX-SWAP/contracts/GTXSwap.sol";
 // @author Ankur Daharwal - <ankur.daharwal@finterra.org>
 contract GTXAuction {
 
+    using SafeMath for uint256;
     /*
      *  Events
      */
@@ -42,6 +44,7 @@ contract GTXAuction {
 
     GTXToken public gtxToken;
     GTXSwap public gtxSwap;
+    uint256 public icoAllocation;
     address public wallet;
     address public owner;
     uint256 public maxTokens;
@@ -111,7 +114,8 @@ contract GTXAuction {
     // @param _floor Gallactic ICO Price curve floor price - Initial decision to be 0.25 (USD)
     // @param _ceiling Gallactic ICO Price curve ceiling price - Initial decision to be 5 (USD)
     constructor(address _multiSigWallet, uint _etherPrice, uint256 _saleEndBlock,
-        uint256 _maxTokens, uint _auditWaitingPeriod, uint _floor, uint _ceiling)
+        uint256 _maxTokens, uint _auditWaitingPeriod, uint _floor, uint _ceiling,
+        GTXToken _gtxToken,GTXSwap _gtxSwap)
         public
     {
         require( _multiSigWallet != address(0) );
@@ -133,32 +137,21 @@ contract GTXAuction {
 
         // Set the contract stage to Auction Deployed
         stage = Stages.AuctionDeployed;
+        gtxToken = _gtxToken;
+        gtxSwap = _gtxSwap;
+        uint256 gtxSwapTotal = gtxSwap.getTotal();
+        icoAllocation =  maxTokens.add(gtxSwapTotal);
     }
 
     // @dev Setup function sets external contracts' addresses.
-    // @param _gtxToken GTX Token Address.
-    function setup(address _gtxToken, address _gtxSwap)
+    function passAllocation()
         public
         isOwner
         atStage(Stages.AuctionDeployed)
     {
-        require(_gtxToken != address(0));
-        require(_gtxSwap != address(0));
-
-        // Initialize the GTX Token contract
-        gtxToken = GTXToken(_gtxToken);
-
-        // Initialize the GTX Swap contract and get total GTX Swap amount
-        gtxSwap = GTXSwap(_gtxSwap);
-        uint256 gtxSwapTotal = gtxSwap.getTotal();
-
         // Allocate ICO token amounts (Permissible only to ICO Contract;
-        //      Address needs to be set in GTXToken before Auction Setup)
-        // gtxToken.passICOAllocation(gtxSwap, maxTokens);
-
-        // Validate allocation amount
-        if (gtxToken.balanceOf(this) != maxTokens + gtxSwapTotal )
-            revert();
+        //  Address needs to be set in GTXToken before Auction Setup)
+        gtxToken.passICOAllocation(icoAllocation);
         stage = Stages.AuctionSetUp;
     }
 
@@ -314,5 +307,9 @@ contract GTXAuction {
     */
     function getERC20() public view returns (address) {
         return gtxToken;
+    }
+
+    function getAllocatedTokens() public view returns(uint256) {
+        return icoAllocation;
     }
 }

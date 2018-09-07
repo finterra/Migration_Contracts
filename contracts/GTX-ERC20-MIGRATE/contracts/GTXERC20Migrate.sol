@@ -58,17 +58,17 @@ contract GTXMigrate is Ownable {
         uint256 _totalMigratableGTX
     );
 
-    // /**
-    // * @dev Used to calculate and store the amount of GTX ERC20 token balances to be migrated to the Gallactic network
-    // * i.e., 1 GTX = 10**18 base units
-    // * @param _balanceToMigrate - the requested balance to reserve for migration (in most cases this should be the account's total balance)
-    // * primarily included as a parameter for simple validation on the Gallactic side of the migration
-    // */
-    // function initiateGTXMigration(uint256 _balanceToMigrate) public {
-    //     uint256 migratable = gtxErc20.migrateTransfer(msg.sender,_balanceToMigrate);
-    //     migratableGTX[msg.sender] = migratableGTX[msg.sender].add(migratable);
-    //     emit GTXRecordUpdate(msg.sender, migratableGTX[msg.sender]);
-    // }
+    /**
+    * @dev Used to calculate and store the amount of GTX ERC20 token balances to be migrated to the Gallactic network
+    * i.e., 1 GTX = 10**18 base units
+    * @param _balanceToMigrate - the requested balance to reserve for migration (in most cases this should be the account's total balance)
+    * primarily included as a parameter for simple validation on the Gallactic side of the migration
+    */
+    function initiateGTXMigration(uint256 _balanceToMigrate) public {
+        uint256 migratable = gtxErc20.migrateTransfer(msg.sender,_balanceToMigrate);
+        migratableGTX[msg.sender] = migratableGTX[msg.sender].add(migratable);
+        emit GTXRecordUpdate(msg.sender, migratableGTX[msg.sender]);
+    }
 
     /**
     * @dev Used to retrieve the GTX ERC20 migration records for an address, for GTX ERC20 claiming

@@ -46,7 +46,6 @@ contract GTXToken is StandardToken, Ownable{
     event SetICOAddress(address GTXICOContractAddress);
     event SetTimeLockAddress(address _timeLockAddress);
     event Migrated(address indexed account, uint256 amount);
-    event ICOAllocation(address GTXToken, address GTXICOContract, uint256 totalGTXSwap,uint256 icoAllocation);
     event MigrationStarted();
 
 
@@ -85,8 +84,7 @@ contract GTXToken is StandardToken, Ownable{
     */
     constructor(uint256 _totalSupply, string _name, string _symbol, uint8 _decimals)
     StandardToken(_name,_symbol,_decimals) public {
-        totalSupply_ = _totalSupply * 10 ** uint(_decimals);
-        balances[this] = totalSupply_;
+        totalSupply_ = _totalSupply;
         emit Transfer(this, owner, totalSupply_);
     }
 
@@ -133,13 +131,13 @@ contract GTXToken is StandardToken, Ownable{
     * @dev Function to start the migration period
     * @return True if the operation was successful.
     */
-    function startMigration() onlyOwner public returns (bool) {
+    function startMigration() public onlyOwner returns (bool) {
         require(migrationStart == false);
         // check that the FIN migration contract address is set
         require(gtxMigrationContract != address(0));
-        // // check that the GTX ICO contract address is set
+        // check that the GTX ICO contract address is set
         require(gtxICOContract != address(0));
-        // // check that the TimeLock contract address is set
+        // check that the TimeLock contract address is set
         require(timeLockContract != address(0));
 
         migrationStart = true;
@@ -151,19 +149,15 @@ contract GTXToken is StandardToken, Ownable{
     /**
      * @dev Function to pass the ICO Allocation to the ICO Contract Address
      * @dev modifier onlyICO Permissioned only to the Gallactic ICO Contract Owner
-     * @param _gtxSwap The address parameter to set the GTX Swap Contract Address
      * @param _icoAllocation The GTX ICO Allocation Amount (Initial Proposal 400,000,000 tokens)
     */
 
-    function passICOAllocation(GTXSwap _gtxSwap, uint256 _icoAllocation) onlyICO public {
-        totalGTXSwap = _gtxSwap.getTotal();
-        icoAllocation = _icoAllocation * 10 ** uint(decimals);
-        uint256 totalICOAllocation = totalGTXSwap + icoAllocation;
-        transfer(gtxICOContract, totalICOAllocation);
-        emit ICOAllocation(this, gtxICOContract, totalGTXSwap,icoAllocation);
+    function passICOAllocation(uint256 _icoAllocation) public onlyICO {
+        require(_icoAllocation <= totalSupply_, "totalICOAllocation should always be less than totalSuppky");
+        balances[gtxICOContract] = _icoAllocation;
 
-        uint256 remainingTokens = totalSupply_.sub(totalICOAllocation);
-        transfer(owner, remainingTokens);
+        uint256 remainingTokens = totalSupply_.sub(_icoAllocation);
+        balances[owner] = remainingTokens;
     }
 
     /**
