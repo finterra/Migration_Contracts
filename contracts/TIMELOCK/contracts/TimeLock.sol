@@ -25,7 +25,7 @@ pragma solidity ^0.4.24;
 **/
 
 import "../../FIN-ERC20/contracts/MintableToken.sol";
-import "../../MATH/SafeMath.sol";
+import "../../openzeppelin-solidity/contracts/math/SafeMath.sol";
 
 /**
 * @title Time Lock for ERC20 tokens

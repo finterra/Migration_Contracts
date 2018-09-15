@@ -51,7 +51,7 @@ contract MintableToken is StandardToken, Claimable {
     bool public mintingFinished = false;
 
     // var for storing the the FINERC20Migrate contract deployment address (for migration to the GALLACTIC network)
-    FINERC20Migrate finERC20MigrationContract;
+    FINERC20Migrate public finERC20MigrationContract;
 
     modifier canMint() {
         require(!mintingFinished);
@@ -78,15 +78,14 @@ contract MintableToken is StandardToken, Claimable {
 
     /**
     * @dev Allows addresses with FIN migration records to claim thier ERC20 FIN tokens. This is the only way minting can occur.
-    * @param _msgHash is the hash of the message
+    * @param _ethAddress address for the token holder
     */
-    function claim(bytes32 _msgHash, uint8 v, bytes32 r, bytes32 s) public canClaim {
-        address signingAddress = ecrecover(_msgHash, v, r, s);
-        require(signingAddress == owner);
-        bytes memory prefix = "\x19Ethereum Signed Message:\n";
-        require(keccak256(abi.encodePacked(prefix, "21", msg.sender, true)) == _msgHash);
-        claimed[msg.sender] = true;
-        mint(msg.sender, finPointRecordContract.recordGet(msg.sender));
+    function mintAllowance(address _ethAddress) public onlyOwner {
+        require(finPointRecordContract.recordGet(_ethAddress) != 0);
+        require(isMinted[_ethAddress] == false);
+        isMinted[_ethAddress] = true;
+        mint(msg.sender, finPointRecordContract.recordGet(_ethAddress));
+        approve(_ethAddress, finPointRecordContract.recordGet(_ethAddress));
     }
 
     /**

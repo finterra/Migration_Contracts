@@ -24,8 +24,8 @@ pragma solidity 0.4.24;
     SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 **/
 
-import "../../OWNABLE/Ownable.sol";
-import "../../MATH/SafeMath.sol";
+import "../../openzeppelin-solidity/contracts/ownership/Ownable.sol";
+import "../../openzeppelin-solidity/contracts/math/SafeMath.sol";
 import "../../FIN-ERC20/contracts/MintableToken.sol";
 
 /**

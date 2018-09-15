@@ -1,60 +1,52 @@
 pragma solidity ^0.4.24;
 
 import "../../FIN-POINT-RECORD/contracts/FINPointRecord.sol";
-import "../../OWNABLE/Ownable.sol";
+import "../../openzeppelin-solidity/contracts/ownership/Ownable.sol";
 
 /**
  * @title Claimable
- * @dev The Claimable contract has an claim contract address, and provides basic authorization control
+ * @dev The Claimable contract accepts a claimable records contract address for reference to records and accounts the can claim tokens, and provides basic authorization control
  * for the minting functions, this simplifies the implementation of "minting permissions".
  */
 
 
 contract Claimable is Ownable {
     // FINPointRecord var definition
-    FINPointRecord finPointRecordContract;
+    FINPointRecord public finPointRecordContract;
 
-    // an address map used to store the cliamed flag, so accounts cannot claim more than once
-    mapping (address => bool) public claimed;
+    // an address map used to store the mintAllowed flag, so we do not mint more than once
+    mapping (address => bool) public isMinted;
 
-    event MigrationSourceTransferred(
-        address indexed previousMigrationContract,
-        address indexed newMigrationContract
+    event RecordSourceTransferred(
+        address indexed previousRecordContract,
+        address indexed newRecordContract
     );
 
 
     /**
-    * @dev The Claimable constructor sets the original `claim contract` to the provided _claimContract
-    * account.
+    * @dev The Claimable constructor sets the original `claimable record contract` to the provided _claimContract
+    * address.
     */
     constructor(FINPointRecord _finPointRecordContract) public {
         finPointRecordContract = _finPointRecordContract;
     }
 
+
     /**
-    * @dev Throws if called by any account other than the claimContract.
+    * @dev Allows to change the record information source contract.
+    * @param _newRecordContract The address of the new record contract
     */
-    modifier canClaim() {
-        require(finPointRecordContract.recordGet(msg.sender) != 0);
-        require(claimed[msg.sender] == false);
-        _;
+    function transferRecordSource(FINPointRecord _newRecordContract) public onlyOwner {
+        _transferRecordSource(_newRecordContract);
     }
 
     /**
-    * @dev Allows to change the migration information source contract.
-    * @param _newMigrationContract The address of the new migration contract
+    * @dev Transfers the reference of the record contract to a newRecordContract.
+    * @param _newRecordContract The address of the new record contract
     */
-    function transferMigrationSource(FINPointRecord _newMigrationContract) public onlyOwner {
-        _transferMigrationSource(_newMigrationContract);
-    }
-
-    /**
-    * @dev Transfers the reference of the recorded migrations contract to a newMigrationContract.
-    * @param _newMigrationContract The address of the new migration contract
-    */
-    function _transferMigrationSource(FINPointRecord _newMigrationContract) internal {
-        require(_newMigrationContract != address(0));
-        emit MigrationSourceTransferred(finPointRecordContract, _newMigrationContract);
-        finPointRecordContract = _newMigrationContract;
+    function _transferRecordSource(FINPointRecord _newRecordContract) internal {
+        require(_newRecordContract != address(0));
+        emit RecordSourceTransferred(finPointRecordContract, _newRecordContract);
+        finPointRecordContract = _newRecordContract;
     }
 }
