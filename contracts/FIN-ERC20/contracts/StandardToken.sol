@@ -55,7 +55,7 @@ contract StandardToken is ERC20Interface {
     // migrationStart flag
     bool migrationStart;
     // var for storing the the TimeLock contract deployment address (for vesting FIN allocations)
-    TimeLock timeLockContract;
+    TimeLock public timeLockContract;
 
     /**
      * @dev Modifier for allowing only TimeLock transactions to occur after the migration period has started

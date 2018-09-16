@@ -78,12 +78,13 @@ contract TimeLock {
     function tokenRelease() public {
         // check if user has funds due for pay out because lock time is over
         require (accounts[msg.sender].balance != 0 && accounts[msg.sender].releaseTime <= now);
+        uint256 transferUnlockedBalance = accounts[msg.sender].balance;
         accounts[msg.sender].balance = 0;
         accounts[msg.sender].releaseTime = 0;
-        emit UnLock(msg.sender, accounts[msg.sender].balance, now);
-        ERC20Contract.transfer(msg.sender, accounts[msg.sender].balance);
-
+        emit UnLock(msg.sender, transferLockedBalance, now);
+        ERC20Contract.transfer(msg.sender, transferUnlockedBalance);
     }
+
 
     // some helper functions for demo purposes (not required)
     function getLockedFunds(address _account) view public returns (uint _lockedBalance) {
