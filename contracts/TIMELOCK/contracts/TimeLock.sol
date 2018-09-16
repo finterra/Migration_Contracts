@@ -81,7 +81,7 @@ contract TimeLock {
         uint256 transferUnlockedBalance = accounts[msg.sender].balance;
         accounts[msg.sender].balance = 0;
         accounts[msg.sender].releaseTime = 0;
-        emit UnLock(msg.sender, transferLockedBalance, now);
+        emit UnLock(msg.sender, transferUnlockedBalance, now);
         ERC20Contract.transfer(msg.sender, transferUnlockedBalance);
     }
 
