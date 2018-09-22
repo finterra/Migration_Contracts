@@ -29,7 +29,7 @@ pragma solidity ^0.4.24;
 */
 
 import "./ERC20Interface.sol";
-import "../../MATH/SafeMath.sol";
+import "../../openzeppelin-solidity/contracts/math/SafeMath.sol";
 import "../../TIMELOCK/contracts/TimeLock.sol";
 
 /**
@@ -43,17 +43,17 @@ contract StandardToken is ERC20Interface {
 
     using SafeMath for uint256;
 
-    mapping(address => uint256) balances;
+    mapping(address => uint256) public balances;
     mapping (address => mapping (address => uint256)) internal allowed;
 
     string public name;
     string public symbol;
     uint8 public decimals;
-    uint256 totalSupply_;
+    uint256 public totalSupply_;
 
     // the following variables need to be here for scoping to properly freeze normal transfers after migration has started
     // migrationStart flag
-    bool migrationStart;
+    bool public migrationStart;
     // var for storing the the TimeLock contract deployment address (for vesting FIN allocations)
     TimeLock public timeLockContract;
 

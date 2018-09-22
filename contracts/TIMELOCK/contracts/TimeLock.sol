@@ -34,7 +34,7 @@ import "../../openzeppelin-solidity/contracts/math/SafeMath.sol";
 
 contract TimeLock {
     //FINERC20 var definition
-    MintableToken ERC20Contract;
+    MintableToken public ERC20Contract;
     // custom data structure to hold locked funds and time
     struct accountData {
         uint256 balance;
@@ -45,7 +45,7 @@ contract TimeLock {
     event UnLock(address indexed _tokenUnLockAccount, uint256 _unLockBalance, uint256 _unLockTime);
 
     // only one locked account per address
-    mapping (address => accountData) accounts;
+    mapping (address => accountData) public accounts;
 
     /**
     * @dev Constructor in which we pass the ERC20Contract address for reference and method calls
@@ -66,7 +66,7 @@ contract TimeLock {
             accounts[msg.sender].balance = SafeMath.add(accounts[msg.sender].balance, lockAmount);
       } else { // else populate the balance and set the release time for the newly locked balance
             accounts[msg.sender].balance = lockAmount;
-            accounts[msg.sender].releaseTime = SafeMath.add(now, _lockTimeS);
+            accounts[msg.sender].releaseTime = SafeMath.add(block.timestamp, _lockTimeS);
         }
 
         emit Lock(msg.sender, lockAmount, accounts[msg.sender].releaseTime);
@@ -77,27 +77,17 @@ contract TimeLock {
 
     function tokenRelease() public {
         // check if user has funds due for pay out because lock time is over
-        require (accounts[msg.sender].balance != 0 && accounts[msg.sender].releaseTime <= now);
+        require (accounts[msg.sender].balance != 0 && accounts[msg.sender].releaseTime <= block.timestamp);
         uint256 transferUnlockedBalance = accounts[msg.sender].balance;
         accounts[msg.sender].balance = 0;
         accounts[msg.sender].releaseTime = 0;
-        emit UnLock(msg.sender, transferUnlockedBalance, now);
+        emit UnLock(msg.sender, transferUnlockedBalance, block.timestamp);
         ERC20Contract.transfer(msg.sender, transferUnlockedBalance);
     }
 
-
-    // some helper functions for demo purposes (not required)
-    function getLockedFunds(address _account) view public returns (uint _lockedBalance) {
-        return accounts[_account].balance;
-    }
-
-    function getReleaseTime(address _account) view public returns (uint _releaseTime) {
-        return accounts[_account].releaseTime;
-    }
-
     /**
-    * @dev Used to retrieve the ERC20 contract address that this deployment is attatched to
-    * @return address - the ERC20 contract address that this deployment is attatched to
+    * @dev Used to retrieve FIN ERC20 contract address that this deployment is attatched to
+    * @return address - the FIN ERC20 contract address that this deployment is attatched to
     */
     function getERC20() public view returns (address) {
         return ERC20Contract;

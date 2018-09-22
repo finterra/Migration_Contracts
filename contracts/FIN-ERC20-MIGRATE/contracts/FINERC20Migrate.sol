@@ -44,10 +44,10 @@ contract FINERC20Migrate is Ownable {
 
     mapping (address => uint256) public migratableFIN;
     
-    MintableToken finErc20;
+    MintableToken public ERC20Contract;
 
     constructor(MintableToken _finErc20) public {
-        finErc20 = _finErc20;
+        ERC20Contract = _finErc20;
     }   
 
     // Note: _totalMigratableFIN is a running total of FIN claimed as migratable in this contract, 
@@ -64,7 +64,7 @@ contract FINERC20Migrate is Ownable {
     *    - primarily included as a parameter for simple validation on the Gallactic side of the migration
     */
     function initiateMigration(uint256 _balanceToMigrate) public {
-        uint256 migratable = finErc20.migrateTransfer(msg.sender, _balanceToMigrate);
+        uint256 migratable = ERC20Contract.migrateTransfer(msg.sender, _balanceToMigrate);
         migratableFIN[msg.sender] = migratableFIN[msg.sender].add(migratable);
         emit FINMigrateRecordUpdate(msg.sender, migratableFIN[msg.sender]);
     }
@@ -83,6 +83,7 @@ contract FINERC20Migrate is Ownable {
     * @return address - the FIN ERC20 contract address that this deployment is attatched to
     */
     function getERC20() public view returns (address) {
-        return finErc20;
+        return ERC20Contract;
     }
 }
+

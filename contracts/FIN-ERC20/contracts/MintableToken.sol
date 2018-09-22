@@ -71,10 +71,16 @@ contract MintableToken is StandardToken, Claimable {
     */
     constructor(FINPointRecord _finPointRecordContract, string _name, string _symbol, uint8 _decimals)
 
+    public
     Claimable(_finPointRecordContract)
-    StandardToken(_name, _symbol, _decimals) public {
+    StandardToken(_name, _symbol, _decimals) {
 
     }
+
+   // fallback to prevent send ETH to this contract
+    function () public payable {
+        revert (); 
+    }  
 
     /**
     * @dev Allows addresses with FIN migration records to claim thier ERC20 FIN tokens. This is the only way minting can occur.
@@ -98,8 +104,8 @@ contract MintableToken is StandardToken, Claimable {
         address _to,
         uint256 _amount
     )
-        canMint
         private
+        canMint
         returns (bool)
     {
         totalSupply_ = totalSupply_.add(_amount);

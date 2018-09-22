@@ -43,7 +43,7 @@ contract FINPointRecord is Ownable {
     // claimRate is the multiplier to calculate the number of FIN ERC20 claimable per FIN points reorded
     // e.g., 100 = 1:1 claim ratio
     // this claim rate can be seen as a kind of airdrop for exsisting FIN point holders at the time of claiming
-    uint256 claimRate;
+    uint256 public claimRate;
 
     // an address map used to store the per account claimable FIN ERC20 record
     // as a result of swapped FIN points
@@ -67,6 +67,8 @@ contract FINPointRecord is Ownable {
         uint256 _finERC20Amount
     );
 
+    event ClaimRateSet(uint256 _claimRate);
+
     /**
      * Throws if claim rate is not set
     */
@@ -82,6 +84,7 @@ contract FINPointRecord is Ownable {
         require(_claimRate <= 1000); // maximum 10x migration rate
         require(_claimRate >= 100); // minimum 1x migration rate
         claimRate = _claimRate;
+        emit ClaimRateSet(claimRate);
     }
 
     /**
@@ -152,7 +155,13 @@ contract FINPointRecord is Ownable {
     * @param _recordAddress - the registered address where FIN ERC20 tokens can be claimed
     * @return uint256 - the amount of recorded FIN ERC20 after FIN point migration
     */
-    function recordGet(address _recordAddress) view public returns (uint256) {
+    function recordGet(address _recordAddress) public view returns (uint256) {
         return claimableFIN[_recordAddress];
     }
+
+    // cannot send ETH to this contract
+    function () public payable {
+        revert (); 
+    }  
+
 }
